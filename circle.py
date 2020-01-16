@@ -28,8 +28,11 @@ class BoardCirlce:
       
       # Refactor to one drawing method
       # used once
-      def draw_circle(self):
+      def draw_empthy_circles(self):
+          if not self.filled:
+             pygame.draw.circle(self.surface, WHITE, self.radius, [self.x_position, self.y_position])
+      def fill_circle(self, color):
           if self.filled:
              pygame.gfxdraw.filled_circle(self.surface, self.x_position, self.y_position, self.radius, self.color)
-          pygame.draw.circle(self.surface, WHITE, self.radius, [self.x_position, self.y_position])   
+       
  
