@@ -28,7 +28,7 @@ class BoardCirlce:
       
       # Refactor to one drawing method
       # used once
-      def draw_empthy_circles(self):
+      def draw_empthy_circle(self):
           if not self.filled:
              pygame.draw.circle(self.surface, WHITE, self.radius, [self.x_position, self.y_position])
       def fill_circle(self, color):

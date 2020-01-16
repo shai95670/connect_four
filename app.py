@@ -34,7 +34,7 @@ def check_for_lowest_available_space(game_grid):
 # they should all have their attribute filled as false
 # 640X400
 # called once at the start
-def create_board_circle_objects(game_grid):
+def  (game_grid):
     row_of_circle_objects = []
     x = 0
     y = 0
@@ -163,7 +163,7 @@ def run_when_circle_clicked(clicked_circles_row, clicked_circles_column, game_gr
 def draw_board_circles(game_grid):
     for row in game_grid:
         for circle_object in row:
-            circle_object.draw_circle()
+            circle_object.draw_empthy_circle()
         
 class App:
     def __init__(self):
@@ -184,7 +184,7 @@ class App:
         pass
 
     def on_render(self):
-        pass
+        draw_board_circles(connect_four_grid)
 
     def on_cleanup(self):
         pygame.quit()
@@ -192,7 +192,9 @@ class App:
     def on_execute(self):
         if self.on_init() == False:
             self._running = False
-
+            
+        create_board_circle_objects(connect_four_grid)
+        set_first_seven_lowest_circles(connect_four_grid)
         while (self._running):
             for event in pygame.event.get():
                 self.on_event(event)
