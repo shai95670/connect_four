@@ -1,6 +1,5 @@
 import pygame
-
-WHITE = ''
+from pygame import gfxdraw
 
 
 """
@@ -15,24 +14,32 @@ The first player can always win by playing the right moves.
 """
 
 class BoardCirlce:
-      surface = None  # Connect_Board Object
-      radius = 6
+      radius = 12
 
       def __init__(self, color, filled, x_position, y_position, lowest_circle):
           self.color = color
           self.filled = filled # boolean
           self.x_position = x_position
           self.y_position = y_position
-          self.lowest_circle = lowest_circle
-          
+          self.lowest_circle = lowest_circle     
       
+      
+      def set_filled(self, boolean_value):
+          self.filled = boolean_value
+       
+              
+      def set_lowest_circle(self, boolean_value):
+          self.lowest_circle = boolean_value
+      
+      def set_color(self, color_for_setting):    
+          self.color = color_for_setting
+                
       # Refactor to one drawing method
       # used once
-      def draw_empthy_circle(self):
+      def draw_circle(self, surface):
           if not self.filled:
-             pygame.draw.circle(self.surface, WHITE, self.radius, [self.x_position, self.y_position])
-      def fill_circle(self, color):
-          if self.filled:
-             pygame.gfxdraw.filled_circle(self.surface, self.x_position, self.y_position, self.radius, self.color)
-       
- 
+             pygame.draw.circle(surface, self.color, (self.x_position, self.y_position), self.radius)
+          elif self.filled:
+             pygame.gfxdraw.filled_circle(surface, self.x_position, self.y_position, self.radius, self.color)    
+             
+            
