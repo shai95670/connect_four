@@ -16,12 +16,14 @@ The first player can always win by playing the right moves.
 class BoardCirlce:
       radius = 12
 
-      def __init__(self, color, filled, x_position, y_position, lowest_circle):
+      def __init__(self, color, filled, x_position, y_position, lowest_circle, column, row):
           self.color = color
           self.filled = filled # boolean
           self.x_position = x_position
           self.y_position = y_position
-          self.lowest_circle = lowest_circle     
+          self.lowest_circle = lowest_circle
+          self.column = column
+          self.row = row
       
       
       def set_filled(self, boolean_value):
