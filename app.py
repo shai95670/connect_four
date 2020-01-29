@@ -1,4 +1,4 @@
-import circle, math, pygame
+import circle, math, pygame, time
 from pygame.locals import *
 
 connect_four_grid = []
@@ -14,15 +14,6 @@ YELLOW = (255, 255, 0)
 NUMBER_OF_CIRCLES_TO_WIN = 4
 
 
-# will mark on the gui available dropping spaces
-# in color
-# highest row which has zeros as values in it
-# start looping through connect_four_gui from the last index
-# check for each (not circle_object.filled)
-# return a list of strings of the format 'row:column'
-# which can then be used to check for the correct
-# circle_object to color for the user 
-# so that he knows available circles to click
 def get_lowest_available_row(game_grid, column_number_to_search):
     list_of_circle_objects_to_search = [value[column_number_to_search] for value in game_grid]
     print(list_of_circle_objects_to_search)
@@ -34,14 +25,6 @@ def get_lowest_available_row(game_grid, column_number_to_search):
            return index
 
 
-# loop through the first row of circle objects
-# based on where the user clicked get the coordinates
-# check at which column the user clicked and return it?
-# run through a single list and not a 2d list
-# improvment from o(n)2
-# call the function get_clicked_column ?
-# key:value pairs where key is left boundery
-# right is right boundery ie 30:40
 def get_number_of_clicked_column(bounderies):
     index = 0
     mouse_x_y_positions = pygame.mouse.get_pos()
@@ -67,7 +50,7 @@ def create_board_circle_objects(game_grid):
             game_grid.append(row_of_circle_objects)
             row_of_circle_objects = []
 
-        row_of_circle_objects.append(circle.BoardCirlce(WHITE, False, x, y, False))
+        row_of_circle_objects.append(circle.BoardCirlce(WHITE, False, x, y))
         x += 60
 
 
@@ -80,82 +63,44 @@ def set_first_seven_lowest_circles(game_grid):
     # TODO: REFACTOR THIS FUNCTION
 
 
-# def get_next_horizontal_circle_object(row, column, game_grid):
-#     return game_grid[row][column + 1]
-
-def get_next_vertical_circle(row, column, game_grid):
-    return game_grid[row - 1][column]
-
-# def get_next_diagonal_circle_object(row, column, game_grid):
-#     return game_grid[row - 1][column + 1]
+def check_if_color_white(circle_object):
+    return circle_object.color == (255, 255, 255)
 
 
-"""
- Refactor check_four_in_a_row_verticaly and check_four_in_a_row_horizantly and
- check_four_in_a_row_diagnoly into one function
-"""
-
-def check_four_in_a_row_verticaly(circle_object, current_row, current_column, game_grid):
-    if (circle_object.color != game_grid[current_row - 1][current_column].color or
-            circle_object.color == (255, 255, 255)):
-        return False
-
-    circles_in_a_row = 1  # always assume we start with one
-    row_to_decrement = current_row
-
-    for index in range(3):
-        row_to_decrement -= 1
-        if (circle_object.color == game_grid[row_to_decrement][current_column].color):
-            circles_in_a_row += 1
-    if circles_in_a_row == NUMBER_OF_CIRCLES_TO_WIN:
+def check_four_in_a_row(current_row, current_column, game_grid):
+    # check current circle being checked if its white
+    if (check_if_color_white(game_grid[current_row][current_column])):
+       return False
+    
+    first_circle_in_a_row = game_grid[current_row][current_column]    
+    circles_in_a_row_horizontal = 1
+    circles_in_a_row_verticaly = 1
+    circles_in_a_diagnoly = 1
+    for number in range(1, 4): # horizontal (5, 6)
+        if ((not current_column + number > 6) and
+            (first_circle_in_a_row.color == game_grid[current_row][current_column + number].color)):
+            circles_in_a_row_horizontal += 1
+        else:
+            break
+               
+    for number in range(1, 4): # vertically        
+        if ((not current_row - number < 0) and
+            (first_circle_in_a_row.color == game_grid[current_row - number][current_column].color)):
+            circles_in_a_row_verticaly += 1
+        else:
+            break   
+    for number in range(1, 4):
+        if ((not current_row - number < 0) and
+            (not current_column + number > 6) and 
+            (first_circle_in_a_row.color == game_grid[current_row - number][current_column + number].color)):
+            circles_in_a_row_verticaly += 1
+        else:
+            break   
+    
+    if (circles_in_a_row_horizontal == 4 or
+        circles_in_a_row_verticaly == 4):
         return True
-    else:
-        return False
-
-
-def check_four_in_a_row_horizantly(circle_object, current_row, current_column, game_grid):
-    if current_column == 6:
-        return False
-    if (circle_object.color != game_grid[current_row][current_column + 1].color or
-            circle_object.color == (255, 255, 255)):
-        return False
-
-    circles_in_a_row = 1  # always assume we start with one
-    column_to_increment = current_column
-    for index in range(3):
-        column_to_increment += 1
-        if column_to_increment == 6:
-           return False 
-        if (circle_object.color == game_grid[current_row][column_to_increment].color):
-            circles_in_a_row += 1
-
-    if circles_in_a_row == NUMBER_OF_CIRCLES_TO_WIN:
-        return True
-    else:
-        return False
-
-
-def check_four_in_a_row_diagnoly(circle_object, current_row, current_column, game_grid):
-    if current_row == 0 or current_column:
-        return False
-    if (circle_object.color != game_grid[current_row - 1][current_column + 1].color or
-            circle_object.color == (255, 255, 255)):
-        return False
-
-    circles_in_a_row = 1  # always assume we start with one
-    column_to_increment = current_column
-    row_to_decrement = current_row
-    for index in range(3):
-        column_to_increment += 1
-        row_to_decrement -= 1
-        if (circle_object.color == game_grid[row_to_decrement][column_to_increment].color and
-                not circle_object.color == (255, 255, 255)):
-            circles_in_a_row += 1
-
-    if circles_in_a_row == NUMBER_OF_CIRCLES_TO_WIN:
-        return True
-    else:
-        return False
+    return False 
 
 
 # then check after each move by a player
@@ -164,9 +109,7 @@ def check_four_in_a_row_diagnoly(circle_object, current_row, current_column, gam
 def check_winner(game_grid):
     for row in range(len(game_grid) - 1, 0, -1):
         for column in range(len(game_grid[row])):
-            if (check_four_in_a_row_verticaly(game_grid[row][column], row, column, connect_four_grid) or 
-                check_four_in_a_row_horizantly(game_grid[row][column], row, column, connect_four_grid) or 
-                check_four_in_a_row_diagnoly(game_grid[row][column], row, column, connect_four_grid)):
+            if (check_four_in_a_row(row, column, game_grid)):
                 return game_grid[row][column].color
     return ''
 
@@ -179,27 +122,33 @@ def fill_circle(game_grid, column_to_fill, row_to_fill):
     game_grid[row_to_fill][column_to_fill].set_filled(True)
 
 
-def set_lowest_circle(game_grid, column_to_set, row_to_set):
-    game_grid[row_to_set][column_to_set].set_lowest_circle(False)
-    game_grid[row_to_set - 1][column_to_set].set_lowest_circle(True)
-
-
 # should be called every few sec
 def draw_board_circles(game_grid, game_surface):
     for row in game_grid:
         for circle_object in row:
             circle_object.draw_circle(game_surface)
 
-def has_winner_color_value():
-    if (winners_color):
-        return True
+# run both of those functions once
+def unfill_all_circles(game_grid):
+    for row in game_grid:
+        for circle_object in row:
+            circle_object.filled = False
+
+def whiten_all_circles(game_grid):
+    for row in game_grid:
+        for circle_object in row:
+            circle_object.color = WHITE
+
+
+
 
 class App:
     def __init__(self):
-        self._running = True
+        #self._running = True
         self.screen = None
         self.size = self.weight, self.height = 440, 440
         self.clock = None
+        self._running = False
         self.game_over = False
 
     def on_init(self):
@@ -207,34 +156,41 @@ class App:
         self.screen = pygame.display.set_mode(self.size)
         pygame.display.set_caption('connect_four')
         self.set_fps()
+        self._running = True
 
     def set_fps(self):
         self.clock = pygame.time.Clock()
 
     def on_event(self, event):
         if event.type == pygame.QUIT:
-            self._running = False
-        if event.type == pygame.MOUSEBUTTONUP:
+           self._running = False
+        if event.type == pygame.KEYDOWN:   
+           if event.key == pygame.K_p:
+              unfill_all_circles(connect_four_grid)
+              whiten_all_circles(connect_four_grid)
+              self.game_over = False
+              self.screen = None  
+              self.on_execute()
+        if event.type == pygame.MOUSEBUTTONUP and not self.game_over:
             column_clicked = get_number_of_clicked_column(dict_of_bounderies)
             row_of_circle = get_lowest_available_row(connect_four_grid, column_clicked)
             global current_player, number_of_turns, winners_color
             if row_of_circle is None:
-               return  
-            elif current_player == 'red':
+               return 
+            if current_player == 'red':
                 set_color_for_circle(connect_four_grid, column_clicked, row_of_circle, RED)
                 current_player = 'yellow'
             else:
                 # run with default yellow argument
                 set_color_for_circle(connect_four_grid, column_clicked, row_of_circle)
                 current_player = 'red'
-            set_lowest_circle(connect_four_grid, column_clicked, row_of_circle)
+            #set_lowest_circle(connect_four_grid, column_clicked, row_of_circle)
             fill_circle(connect_four_grid, column_clicked, row_of_circle)
             number_of_turns += 1
 
             if number_of_turns >= 4:
                winners_color = check_winner(connect_four_grid)
                if winners_color:
-                  print(winners_color) 
                   self.game_over = True
 
 
@@ -243,25 +199,36 @@ class App:
 
     def on_cleanup(self):
         pygame.quit()
+             
+    def set_game_winner_logo(self):
+        font = pygame.font.Font(pygame.font.get_default_font(), 20)
+        # now print the text
+        text_surface = font.render('Winner', False, (0, 0, 0))
+        self.screen.blit(text_surface, dest=(190,370))
+        
+        pygame.draw.rect(self.screen, winners_color, [200, 400, 40, 20])
 
     def on_execute(self):
         self.on_init()
         create_board_circle_objects(connect_four_grid)
         set_first_seven_lowest_circles(connect_four_grid)
-
+        
         while (self._running):  # main game loop
             for event in pygame.event.get():
                 self.on_event(event)
+                 
             self.screen.fill(BLUE)
             self.on_render()
+            
             if self.game_over:
-               set_game_over() 
+               self.set_game_winner_logo()    
+                     
             pygame.display.update()
             self.clock.tick(60)
-        
-        self.on_cleanup()
-
-
+            
+        self.on_cleanup()    
+            
+               
 if __name__ == "__main__":
     theApp = App()
     theApp.on_execute()
